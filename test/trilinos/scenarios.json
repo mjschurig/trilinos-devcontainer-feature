@@ -1,0 +1,49 @@
+{
+    "basic_installation": {
+        "image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",
+        "features": {
+            "trilinos": {}
+        }
+    },
+    "with_mpi_disabled": {
+        "image": "mcr.microsoft.com/devcontainers/cpp:1-ubuntu-22.04",
+        "features": {
+            "trilinos": {
+                "enableMPI": false,
+                "enableKokkos": true,
+                "buildType": "Debug"
+            }
+        }
+    },
+    "minimal_installation": {
+        "image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",
+        "features": {
+            "trilinos": {
+                "enableMPI": true,
+                "enableKokkos": false,
+                "enableTpetra": false,
+                "enableBelos": false,
+                "enableIfpack2": false,
+                "buildType": "Release"
+            }
+        }
+    },
+    "full_featured": {
+        "image": "mcr.microsoft.com/devcontainers/cpp:1-ubuntu-22.04",
+        "features": {
+            "trilinos": {
+                "enableMPI": true,
+                "enableKokkos": true,
+                "enableTpetra": true,
+                "enableBelos": true,
+                "enableIfpack2": true,
+                "enableMueLu": true,
+                "enableZoltan": true,
+                "enableZoltan2": true,
+                "buildType": "Release",
+                "enableFloat": true,
+                "enableComplex": false
+            }
+        }
+    }
+} 

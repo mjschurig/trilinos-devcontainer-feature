@@ -1,0 +1,39 @@
+{
+    "name": "Trilinos Development Environment",
+    "image": "mcr.microsoft.com/devcontainers/cpp:1-ubuntu-22.04",
+    
+    "features": {
+        "ghcr.io/maxschurig/trilinos-devcontainer-feature/trilinos:1": {
+            "version": "latest",
+            "enableMPI": true,
+            "enableKokkos": true,
+            "enableTpetra": true,
+            "enableBelos": true,
+            "enableIfpack2": true,
+            "buildType": "Release",
+            "enableSharedLibs": true,
+            "enableTests": false,
+            "enableExamples": false
+        }
+    },
+    
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-vscode.cpptools",
+                "ms-vscode.cpptools-extension-pack",
+                "ms-vscode.cmake-tools",
+                "twxs.cmake",
+                "ms-python.python"
+            ]
+        }
+    },
+    
+    "postCreateCommand": [
+        "echo 'Welcome to your Trilinos development environment!'",
+        "echo 'Trilinos is installed at: $TRILINOS_DIR'",
+        "echo 'Run the test program: cd /usr/local/share/trilinos/test && mkdir build && cd build && cmake .. && make && ./test_trilinos'"
+    ],
+    
+    "remoteUser": "vscode"
+} 

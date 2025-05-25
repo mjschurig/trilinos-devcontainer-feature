@@ -1,0 +1,29 @@
+{
+    "sourceInformation": {
+        "source": "https://github.com/maxschurig/trilinos-devcontainer-feature",
+        "license": "MIT"
+    },
+    "features": [
+        {
+            "id": "trilinos",
+            "version": "1.0.0",
+            "name": "Trilinos",
+            "description": "Installs Trilinos - a collection of scientific computing libraries for engineering and science applications",
+            "documentationURL": "https://github.com/trilinos/trilinos",
+            "licenseURL": "https://github.com/trilinos/trilinos/blob/master/LICENSE",
+            "keywords": [
+                "trilinos",
+                "scientific-computing",
+                "linear-algebra",
+                "mpi",
+                "parallel",
+                "kokkos",
+                "tpetra",
+                "belos",
+                "ifpack2",
+                "muelu",
+                "zoltan"
+            ]
+        }
+    ]
+} 

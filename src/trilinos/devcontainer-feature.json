@@ -1,0 +1,126 @@
+{
+    "id": "trilinos",
+    "version": "1.0.0",
+    "name": "Trilinos",
+    "description": "Installs Trilinos - a collection of scientific computing libraries for engineering and science applications",
+    "documentationURL": "https://github.com/trilinos/trilinos",
+    "licenseURL": "https://github.com/trilinos/trilinos/blob/master/LICENSE",
+    "keywords": [
+        "trilinos",
+        "scientific-computing",
+        "linear-algebra",
+        "mpi",
+        "parallel",
+        "kokkos",
+        "tpetra",
+        "belos",
+        "ifpack2",
+        "muelu",
+        "zoltan"
+    ],
+    "options": {
+        "version": {
+            "type": "string",
+            "proposals": [
+                "latest",
+                "15.0.0",
+                "14.4.0",
+                "14.2.0",
+                "14.0.0",
+                "13.4.1"
+            ],
+            "default": "latest",
+            "description": "Select the Trilinos version to install"
+        },
+        "enableMPI": {
+            "type": "boolean",
+            "default": true,
+            "description": "Enable MPI support"
+        },
+        "enableKokkos": {
+            "type": "boolean",
+            "default": true,
+            "description": "Enable Kokkos for parallel computing and performance portability"
+        },
+        "enableTpetra": {
+            "type": "boolean",
+            "default": true,
+            "description": "Enable Tpetra for next-generation linear algebra"
+        },
+        "enableBelos": {
+            "type": "boolean",
+            "default": true,
+            "description": "Enable Belos for iterative linear solvers"
+        },
+        "enableIfpack2": {
+            "type": "boolean",
+            "default": true,
+            "description": "Enable Ifpack2 for algebraic preconditioners"
+        },
+        "enableMueLu": {
+            "type": "boolean",
+            "default": false,
+            "description": "Enable MueLu for multigrid preconditioning"
+        },
+        "enableZoltan": {
+            "type": "boolean",
+            "default": false,
+            "description": "Enable Zoltan for load balancing and partitioning"
+        },
+        "enableZoltan2": {
+            "type": "boolean",
+            "default": false,
+            "description": "Enable Zoltan2 for next-generation partitioning"
+        },
+        "buildType": {
+            "type": "string",
+            "enum": [
+                "Release",
+                "Debug",
+                "RelWithDebInfo",
+                "MinSizeRel"
+            ],
+            "default": "Release",
+            "description": "CMake build type"
+        },
+        "installPrefix": {
+            "type": "string",
+            "default": "/usr/local",
+            "description": "Installation prefix path"
+        },
+        "enableSharedLibs": {
+            "type": "boolean",
+            "default": true,
+            "description": "Build shared libraries instead of static"
+        },
+        "enableTests": {
+            "type": "boolean",
+            "default": false,
+            "description": "Enable building and running tests (increases build time significantly)"
+        },
+        "enableExamples": {
+            "type": "boolean",
+            "default": false,
+            "description": "Enable building examples"
+        },
+        "parallelJobs": {
+            "type": "string",
+            "default": "auto",
+            "description": "Number of parallel jobs for compilation (auto, or number like 4)"
+        },
+        "enableFloat": {
+            "type": "boolean",
+            "default": false,
+            "description": "Enable float scalar type support"
+        },
+        "enableComplex": {
+            "type": "boolean",
+            "default": false,
+            "description": "Enable complex scalar type support"
+        }
+    },
+    "containerEnv": {
+        "TRILINOS_DIR": "${installPrefix}",
+        "CMAKE_PREFIX_PATH": "${installPrefix}:${CMAKE_PREFIX_PATH}"
+    }
+} 
