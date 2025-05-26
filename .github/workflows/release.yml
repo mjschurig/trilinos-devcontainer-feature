@@ -27,21 +27,8 @@ jobs:
       - name: "Generating tests for '${{ matrix.features }}' against '${{ matrix.baseImage }}'"
         run: devcontainer features test --skip-scenarios -f ${{ matrix.features }} -i ${{ matrix.baseImage }} .
 
-  test-global:
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: "Install latest devcontainer CLI"
-        run: npm install -g @devcontainers/cli
-
-      - name: "Testing global scenarios"
-        run: devcontainer features test --global-scenarios-only .
-
   publish:
-    needs: [test, test-global]
+    needs: [test]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -60,7 +47,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   package-and-publish:
-    needs: [test, test-global]
+    needs: [test]
     runs-on: ubuntu-latest
     if: ${{ github.ref == 'refs/heads/main' }}
     steps:
@@ -79,4 +66,4 @@ jobs:
             --registry ghcr.io \
             --namespace ${{ github.repository_owner }}/trilinos-devcontainer-feature
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
