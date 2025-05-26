@@ -28,7 +28,7 @@ ENABLEEXAMPLES=${ENABLEEXAMPLES:-false}
 PARALLELJOBS=${PARALLELJOBS:-auto}
 ENABLEFLOAT=${ENABLEFLOAT:-false}
 ENABLECOMPLEX=${ENABLECOMPLEX:-false}
-CXXSTANDARD=${CXXSTANDARD:-23}
+CXXSTANDARD=${CXXSTANDARD:-20}
 ENABLEFORTRAN=${ENABLEFORTRAN:-true}
 
 echo "Installing Trilinos with the following options:"
@@ -232,18 +232,18 @@ if [ "$VERSION" = "latest" ]; then
     if version_ge "$FINAL_CMAKE_VERSION" "3.23.0"; then
         TRILINOS_VERSION="master"
         echo "Using latest Trilinos (master branch)..."
-        # Latest Trilinos requires C++17+, default to C++23 for modern features
+        # Latest Trilinos requires C++17+, default to C++20 for modern features
         if [ "$CXXSTANDARD" = "14" ]; then
-            echo "Latest Trilinos requires C++17+, updating from C++14 to C++23"
-            CXXSTANDARD="23"
+            echo "Latest Trilinos requires C++17+, updating from C++14 to C++20"
+            CXXSTANDARD="20"
         fi
     else
         echo "CMake version too old for latest Trilinos, using version 14.4.0 instead..."
         TRILINOS_VERSION="trilinos-release-14-4-0"
         VERSION="14.4.0"
         # Older versions support C++14, but we default to modern standards
-        if [ "$CXXSTANDARD" = "23" ] && [ "$VERSION" = "14.4.0" ]; then
-            echo "Version 14.4.0 with C++23 - using modern standard for better performance"
+        if [ "$CXXSTANDARD" = "20" ] && [ "$VERSION" = "14.4.0" ]; then
+            echo "Version 14.4.0 with C++20 - using modern standard for better performance"
         fi
     fi
     TRILINOS_URL="https://github.com/trilinos/Trilinos.git"

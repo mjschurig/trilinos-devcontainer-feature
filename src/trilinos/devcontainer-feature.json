@@ -1,6 +1,6 @@
 {
     "id": "trilinos",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "name": "Trilinos",
     "description": "Installs Trilinos - a collection of scientific computing libraries for engineering and science applications",
     "documentationURL": "https://github.com/trilinos/trilinos",
@@ -121,12 +121,12 @@
         "cxxStandard": {
             "type": "string",
             "enum": [
+                "14",
                 "17",
-                "20",
-                "23"
+                "20"
             ],
-            "default": "23",
-            "description": "C++ standard version (latest Trilinos requires 17+, default 23 for modern features)"
+            "default": "20",
+            "description": "C++ standard version (Trilinos supports 14, 17, 20 - latest requires 17+)"
         },
         "enableFortran": {
             "type": "boolean",

@@ -31,7 +31,7 @@ Installs [Trilinos](https://trilinos.github.io/) - a collection of scientific co
 | parallelJobs | Number of parallel jobs for compilation (auto, or number like 4) | string | auto |
 | enableFloat | Enable float scalar type support | boolean | false |
 | enableComplex | Enable complex scalar type support | boolean | false |
-| cxxStandard | C++ standard version (latest Trilinos requires 17+) | string | 23 |
+| cxxStandard | C++ standard version (Trilinos supports 14, 17, 20) | string | 20 |
 | enableFortran | Enable Fortran language support (required for some Trilinos packages) | boolean | true |
 
 ## Supported Trilinos Versions
@@ -126,7 +126,7 @@ Installs [Trilinos](https://trilinos.github.io/) - a collection of scientific co
   "features": {
     "ghcr.io/maxschurig/trilinos-devcontainer-feature/trilinos:1": {
       "enableFortran": false,
-      "cxxStandard": "23"
+      "cxxStandard": "20"
     }
   }
 }
