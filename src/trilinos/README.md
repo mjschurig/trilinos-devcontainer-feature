@@ -66,9 +66,12 @@ Installs [Trilinos](https://trilinos.github.io/) - a collection of scientific co
 ## System Requirements
 
 - **Base Image**: Debian-based Linux (Ubuntu, Debian)
+- **CMake**: 3.23.0+ (automatically installed if needed)
 - **RAM**: At least 4GB for compilation
 - **Disk Space**: ~2GB for source code and build artifacts
 - **Time**: 20-60 minutes depending on enabled packages and system specs
+
+> **Note**: The feature automatically installs a newer version of CMake (3.25.0+) if the system version is too old. For the latest Trilinos version, CMake 3.23.0+ is required.
 
 ## Quick Start
 

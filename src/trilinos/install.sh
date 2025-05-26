@@ -98,7 +98,6 @@ check_packages() {
 echo "Installing base development tools..."
 check_packages \
     build-essential \
-    cmake \
     git \
     wget \
     curl \
@@ -108,7 +107,62 @@ check_packages \
     autotools-dev \
     autoconf \
     automake \
-    ninja-build
+    ninja-build \
+    software-properties-common \
+    gpg \
+    lsb-release
+
+# Install a newer version of CMake (Trilinos requires 3.23.0+)
+echo "Installing CMake 3.25.0 or newer..."
+CMAKE_VERSION_INSTALLED=$(cmake --version 2>/dev/null | grep -oP 'cmake version \K[0-9]+\.[0-9]+\.[0-9]+' || echo "0.0.0")
+CMAKE_REQUIRED="3.23.0"
+
+# Function to compare versions
+version_ge() {
+    [ "$(printf '%s\n' "$2" "$1" | sort -V | head -n1)" = "$2" ]
+}
+
+if ! version_ge "$CMAKE_VERSION_INSTALLED" "$CMAKE_REQUIRED"; then
+    echo "Current CMake version ($CMAKE_VERSION_INSTALLED) is too old. Installing CMake 3.25.0..."
+    
+    # Remove old cmake if installed
+    apt-get remove -y cmake cmake-data 2>/dev/null || true
+    
+    # Install CMake from Kitware's repository
+    wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
+    
+    # Add Kitware repository
+    echo "deb https://apt.kitware.com/ubuntu/ $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/kitware.list >/dev/null
+    
+    # Update package list and install cmake
+    apt-get update -y
+    apt-get install -y cmake
+    
+    # Verify installation
+    CMAKE_NEW_VERSION=$(cmake --version | grep -oP 'cmake version \K[0-9]+\.[0-9]+\.[0-9]+')
+    echo "CMake version installed: $CMAKE_NEW_VERSION"
+    
+    if ! version_ge "$CMAKE_NEW_VERSION" "$CMAKE_REQUIRED"; then
+        echo "Warning: CMake version is still too old, trying alternative installation..."
+        
+        # Fallback: Install from source or snap
+        if command -v snap >/dev/null 2>&1; then
+            echo "Installing CMake via snap..."
+            snap install cmake --classic
+            ln -sf /snap/bin/cmake /usr/local/bin/cmake
+        else
+            echo "Installing CMake from source..."
+            cd /tmp
+            CMAKE_SRC_VERSION="3.25.3"
+            wget "https://github.com/Kitware/CMake/releases/download/v${CMAKE_SRC_VERSION}/cmake-${CMAKE_SRC_VERSION}-linux-x86_64.tar.gz"
+            tar -xzf "cmake-${CMAKE_SRC_VERSION}-linux-x86_64.tar.gz"
+            cp -r "cmake-${CMAKE_SRC_VERSION}-linux-x86_64"/* /usr/local/
+            rm -rf "cmake-${CMAKE_SRC_VERSION}-linux-x86_64"*
+        fi
+    fi
+else
+    echo "CMake version ($CMAKE_VERSION_INSTALLED) meets requirements."
+fi
 
 # Install BLAS/LAPACK
 echo "Installing BLAS/LAPACK..."
@@ -159,11 +213,23 @@ echo "Using $JOBS parallel jobs for compilation"
 TRILINOS_SRC_DIR="/tmp/trilinos-source"
 TRILINOS_BUILD_DIR="/tmp/trilinos-build"
 
+# Check final CMake version before proceeding
+FINAL_CMAKE_VERSION=$(cmake --version | grep -oP 'cmake version \K[0-9]+\.[0-9]+\.[0-9]+')
+echo "Final CMake version: $FINAL_CMAKE_VERSION"
+
 if [ "$VERSION" = "latest" ]; then
-    TRILINOS_VERSION="master"
+    # Check if CMake version is sufficient for latest
+    if version_ge "$FINAL_CMAKE_VERSION" "3.23.0"; then
+        TRILINOS_VERSION="master"
+        echo "Using latest Trilinos (master branch)..."
+    else
+        echo "CMake version too old for latest Trilinos, using version 14.4.0 instead..."
+        TRILINOS_VERSION="trilinos-release-14-4-0"
+        VERSION="14.4.0"
+    fi
     TRILINOS_URL="https://github.com/trilinos/Trilinos.git"
-    echo "Cloning latest Trilinos from GitHub..."
-    git clone --depth 1 --branch master "$TRILINOS_URL" "$TRILINOS_SRC_DIR"
+    echo "Cloning Trilinos from GitHub..."
+    git clone --depth 1 --branch "$TRILINOS_VERSION" "$TRILINOS_URL" "$TRILINOS_SRC_DIR"
 else
     TRILINOS_VERSION="trilinos-release-${VERSION//./-}"
     TRILINOS_URL="https://github.com/trilinos/Trilinos.git"
@@ -171,8 +237,13 @@ else
     git clone --depth 1 --branch "$TRILINOS_VERSION" "$TRILINOS_URL" "$TRILINOS_SRC_DIR" || {
         echo "Failed to clone specific version, trying without prefix..."
         git clone --depth 1 --branch "$VERSION" "$TRILINOS_URL" "$TRILINOS_SRC_DIR" || {
-            echo "Failed to clone version $VERSION, falling back to master..."
-            git clone --depth 1 --branch master "$TRILINOS_URL" "$TRILINOS_SRC_DIR"
+            echo "Failed to clone version $VERSION, trying alternative format..."
+            ALT_VERSION="${VERSION//./-}"
+            git clone --depth 1 --branch "trilinos-release-$ALT_VERSION" "$TRILINOS_URL" "$TRILINOS_SRC_DIR" || {
+                echo "Failed to clone version $VERSION, falling back to 14.4.0..."
+                git clone --depth 1 --branch "trilinos-release-14-4-0" "$TRILINOS_URL" "$TRILINOS_SRC_DIR"
+                VERSION="14.4.0"
+            }
         }
     }
 fi

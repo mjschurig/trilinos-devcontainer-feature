@@ -36,6 +36,7 @@ Add this feature to your `devcontainer.json`:
 ## Requirements
 
 - Debian-based container image (Ubuntu, Debian)
+- CMake 3.23.0+ (automatically installed if needed)
 - At least 4GB RAM for compilation
 - Sufficient disk space (~2GB for source + build)
 
