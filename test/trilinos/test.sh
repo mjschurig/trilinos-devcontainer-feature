@@ -12,9 +12,43 @@ check "trilinos version check" bash -c "trilinos-config --version || echo 'trili
 
 check "trilinos headers exist" bash -c "ls /usr/local/include/Teuchos_*.hpp"
 
-check "trilinos libraries exist" bash -c "ls /usr/local/lib/libteuchos.* || ls /usr/local/lib64/libteuchos.*"
+check "trilinos libraries exist" bash -c "
+    # Check for various library patterns in multiple locations
+    found=false
+    for lib_dir in /usr/local/lib /usr/local/lib64; do
+        if [ -d \"\$lib_dir\" ]; then
+            for pattern in 'libteuchos.*' 'libteuchoscore.*' 'libteuchoscomm.*'; do
+                if ls \"\$lib_dir\"/\$pattern 1>/dev/null 2>&1; then
+                    echo \"Found Trilinos libraries: \$(ls \"\$lib_dir\"/\$pattern | head -1)\"
+                    found=true
+                    break 2
+                fi
+            done
+        fi
+    done
+    if [ \"\$found\" = \"false\" ]; then
+        echo \"Searching for any Trilinos libraries...\"
+        find /usr/local -name '*teuchos*' 2>/dev/null | head -5 || echo \"No teuchos libraries found\"
+        exit 1
+    fi
+"
 
-check "trilinos cmake config exists" bash -c "ls /usr/local/lib/cmake/Trilinos/TrilinosConfig.cmake || ls /usr/local/lib64/cmake/Trilinos/TrilinosConfig.cmake"
+check "trilinos cmake config exists" bash -c "
+    # Check for CMake config in multiple possible locations
+    found=false
+    for cmake_dir in /usr/local/lib/cmake/Trilinos /usr/local/lib64/cmake/Trilinos /usr/local/share/cmake/Trilinos; do
+        if [ -f \"\$cmake_dir/TrilinosConfig.cmake\" ]; then
+            echo \"Found TrilinosConfig.cmake in \$cmake_dir\"
+            found=true
+            break
+        fi
+    done
+    if [ \"\$found\" = \"false\" ]; then
+        echo \"Searching for TrilinosConfig.cmake...\"
+        find /usr/local -name 'TrilinosConfig.cmake' 2>/dev/null || echo \"No TrilinosConfig.cmake found\"
+        exit 1
+    fi
+"
 
 check "trilinos environment variables" bash -c "echo \$TRILINOS_DIR"
 

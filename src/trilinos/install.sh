@@ -284,6 +284,8 @@ CMAKE_ARGS=(
     "-DTrilinos_ENABLE_ALL_OPTIONAL_PACKAGES=OFF"
     "-DTrilinos_ENABLE_TESTS=$ENABLETESTS"
     "-DTrilinos_ENABLE_EXAMPLES=$ENABLEEXAMPLES"
+    "-DCMAKE_INSTALL_RPATH_USE_LINK_PATH=ON"
+    "-DCMAKE_INSTALL_RPATH=$INSTALLPREFIX/lib:$INSTALLPREFIX/lib64"
 )
 
 # Configure MPI
@@ -377,6 +379,18 @@ make -j$JOBS
 echo "Installing Trilinos..."
 make install
 
+# Debug: Check what was actually installed
+echo "Checking installation results..."
+echo "Contents of $INSTALLPREFIX/lib:"
+ls -la "$INSTALLPREFIX/lib" 2>/dev/null | head -20 || echo "lib directory not found or empty"
+echo ""
+echo "Contents of $INSTALLPREFIX/lib64:"
+ls -la "$INSTALLPREFIX/lib64" 2>/dev/null | head -20 || echo "lib64 directory not found or empty"
+echo ""
+echo "Looking for any teuchos files:"
+find "$INSTALLPREFIX" -name "*teuchos*" 2>/dev/null | head -10 || echo "No teuchos files found"
+echo ""
+
 # Create environment setup script
 ENV_SCRIPT="$INSTALLPREFIX/bin/trilinos-env.sh"
 mkdir -p "$(dirname "$ENV_SCRIPT")"
@@ -468,6 +482,8 @@ rm -rf "$TRILINOS_SRC_DIR" "$TRILINOS_BUILD_DIR"
 
 # Test the installation
 echo "Testing Trilinos installation..."
+
+# Check headers
 if [ -f "$INSTALLPREFIX/include/Teuchos_Version.hpp" ]; then
     echo "✓ Trilinos headers found"
 else
@@ -475,17 +491,57 @@ else
     exit 1
 fi
 
-if [ -f "$INSTALLPREFIX/lib/libteuchos.so" ] || [ -f "$INSTALLPREFIX/lib64/libteuchos.so" ]; then
-    echo "✓ Trilinos libraries found"
-else
+# Check libraries with more flexible detection
+TEUCHOS_LIB_FOUND=false
+
+# Check for various possible library names and locations
+for lib_dir in "$INSTALLPREFIX/lib" "$INSTALLPREFIX/lib64"; do
+    if [ -d "$lib_dir" ]; then
+        # Check for different possible library names (shared libraries first)
+        for lib_pattern in "libteuchos.so*" "libteuchoscore.so*" "libteuchoscomm.so*" "libteuchos*.so*"; do
+            if ls "$lib_dir"/$lib_pattern 1> /dev/null 2>&1; then
+                echo "✓ Trilinos shared libraries found: $(ls "$lib_dir"/$lib_pattern | head -1)"
+                TEUCHOS_LIB_FOUND=true
+                break 2
+            fi
+        done
+        # If no shared libraries found, check for static libraries
+        if [ "$TEUCHOS_LIB_FOUND" = "false" ]; then
+            for lib_pattern in "libteuchos.a" "libteuchoscore.a" "libteuchoscomm.a" "libteuchos*.a"; do
+                if ls "$lib_dir"/$lib_pattern 1> /dev/null 2>&1; then
+                    echo "✓ Trilinos static libraries found: $(ls "$lib_dir"/$lib_pattern | head -1)"
+                    echo "  Note: Static libraries found instead of shared libraries"
+                    TEUCHOS_LIB_FOUND=true
+                    break 2
+                fi
+            done
+        fi
+    fi
+done
+
+if [ "$TEUCHOS_LIB_FOUND" = "false" ]; then
     echo "✗ Trilinos libraries not found"
+    echo "Searching for any Trilinos libraries..."
+    find "$INSTALLPREFIX" -name "*.so*" | grep -i teuchos || echo "No teuchos libraries found anywhere"
+    find "$INSTALLPREFIX" -name "*.so*" | grep -i trilinos || echo "No trilinos libraries found anywhere"
     exit 1
 fi
 
-if [ -f "$INSTALLPREFIX/lib/cmake/Trilinos/TrilinosConfig.cmake" ] || [ -f "$INSTALLPREFIX/lib64/cmake/Trilinos/TrilinosConfig.cmake" ]; then
-    echo "✓ Trilinos CMake configuration found"
-else
+# Check CMake configuration
+CMAKE_CONFIG_FOUND=false
+for cmake_dir in "$INSTALLPREFIX/lib/cmake/Trilinos" "$INSTALLPREFIX/lib64/cmake/Trilinos" "$INSTALLPREFIX/share/cmake/Trilinos"; do
+    if [ -f "$cmake_dir/TrilinosConfig.cmake" ]; then
+        echo "✓ Trilinos CMake configuration found: $cmake_dir/TrilinosConfig.cmake"
+        CMAKE_CONFIG_FOUND=true
+        break
+    fi
+done
+
+if [ "$CMAKE_CONFIG_FOUND" = "false" ]; then
     echo "✗ Trilinos CMake configuration not found"
+    echo "Searching for CMake configuration files..."
+    find "$INSTALLPREFIX" -name "TrilinosConfig.cmake" || echo "No TrilinosConfig.cmake found anywhere"
+    find "$INSTALLPREFIX" -name "*Trilinos*.cmake" | head -5 || echo "No Trilinos CMake files found"
     exit 1
 fi
 
