@@ -31,6 +31,7 @@ Installs [Trilinos](https://trilinos.github.io/) - a collection of scientific co
 | parallelJobs | Number of parallel jobs for compilation (auto, or number like 4) | string | auto |
 | enableFloat | Enable float scalar type support | boolean | false |
 | enableComplex | Enable complex scalar type support | boolean | false |
+| cxxStandard | C++ standard version (latest Trilinos requires 17+) | string | 23 |
 
 ## Supported Trilinos Versions
 
@@ -67,11 +68,12 @@ Installs [Trilinos](https://trilinos.github.io/) - a collection of scientific co
 
 - **Base Image**: Debian-based Linux (Ubuntu, Debian)
 - **CMake**: 3.23.0+ (automatically installed if needed)
+- **Compiler**: C++23 capable compiler (GCC 11+, Clang 12+) - C++17 minimum
 - **RAM**: At least 4GB for compilation
 - **Disk Space**: ~2GB for source code and build artifacts
 - **Time**: 20-60 minutes depending on enabled packages and system specs
 
-> **Note**: The feature automatically installs a newer version of CMake (3.25.0+) if the system version is too old. For the latest Trilinos version, CMake 3.23.0+ is required.
+> **Note**: The feature automatically installs a newer version of CMake (3.25.0+) if the system version is too old. Latest Trilinos versions require CMake 3.23.0+ and C++17. The feature automatically adjusts C++ standard requirements based on the Trilinos version.
 
 ## Quick Start
 
@@ -173,7 +175,8 @@ cmake .. && make && ./test_trilinos
   "enableZoltan2": true,
   "enableFloat": true,
   "enableComplex": true,
-  "buildType": "RelWithDebInfo"
+  "buildType": "RelWithDebInfo",
+  "cxxStandard": "20"
 }
 ```
 

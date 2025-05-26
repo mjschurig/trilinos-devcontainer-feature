@@ -1,6 +1,6 @@
 {
     "id": "trilinos",
-    "version": "1.0.1",
+    "version": "1.0.3",
     "name": "Trilinos",
     "description": "Installs Trilinos - a collection of scientific computing libraries for engineering and science applications",
     "documentationURL": "https://github.com/trilinos/trilinos",
@@ -117,6 +117,16 @@
             "type": "boolean",
             "default": false,
             "description": "Enable complex scalar type support"
+        },
+        "cxxStandard": {
+            "type": "string",
+            "enum": [
+                "17",
+                "20",
+                "23"
+            ],
+            "default": "23",
+            "description": "C++ standard version (latest Trilinos requires 17+, default 23 for modern features)"
         }
     },
     "containerEnv": {

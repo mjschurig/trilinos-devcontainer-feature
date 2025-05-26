@@ -32,6 +32,7 @@ Add this feature to your `devcontainer.json`:
 | `installPrefix` | string | `/usr/local` | Installation prefix path |
 | `enableSharedLibs` | boolean | `true` | Build shared libraries |
 | `enableTests` | boolean | `false` | Enable building tests |
+| `cxxStandard` | string | `23` | C++ standard version (latest Trilinos requires 17+) |
 
 ## Requirements
 

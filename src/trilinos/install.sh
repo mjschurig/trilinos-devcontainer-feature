@@ -28,6 +28,7 @@ ENABLEEXAMPLES=${ENABLEEXAMPLES:-false}
 PARALLELJOBS=${PARALLELJOBS:-auto}
 ENABLEFLOAT=${ENABLEFLOAT:-false}
 ENABLECOMPLEX=${ENABLECOMPLEX:-false}
+CXXSTANDARD=${CXXSTANDARD:-23}
 
 echo "Installing Trilinos with the following options:"
 echo "  Version: $VERSION"
@@ -47,6 +48,7 @@ echo "  Examples: $ENABLEEXAMPLES"
 echo "  Parallel Jobs: $PARALLELJOBS"
 echo "  Float Support: $ENABLEFLOAT"
 echo "  Complex Support: $ENABLECOMPLEX"
+echo "  C++ Standard: $CXXSTANDARD"
 
 # Check if we are running as root
 if [ "$(id -u)" -ne 0 ]; then
@@ -222,10 +224,19 @@ if [ "$VERSION" = "latest" ]; then
     if version_ge "$FINAL_CMAKE_VERSION" "3.23.0"; then
         TRILINOS_VERSION="master"
         echo "Using latest Trilinos (master branch)..."
+        # Latest Trilinos requires C++17+, default to C++23 for modern features
+        if [ "$CXXSTANDARD" = "14" ]; then
+            echo "Latest Trilinos requires C++17+, updating from C++14 to C++23"
+            CXXSTANDARD="23"
+        fi
     else
         echo "CMake version too old for latest Trilinos, using version 14.4.0 instead..."
         TRILINOS_VERSION="trilinos-release-14-4-0"
         VERSION="14.4.0"
+        # Older versions support C++14, but we default to modern standards
+        if [ "$CXXSTANDARD" = "23" ] && [ "$VERSION" = "14.4.0" ]; then
+            echo "Version 14.4.0 with C++23 - using modern standard for better performance"
+        fi
     fi
     TRILINOS_URL="https://github.com/trilinos/Trilinos.git"
     echo "Cloning Trilinos from GitHub..."
@@ -240,9 +251,13 @@ else
             echo "Failed to clone version $VERSION, trying alternative format..."
             ALT_VERSION="${VERSION//./-}"
             git clone --depth 1 --branch "trilinos-release-$ALT_VERSION" "$TRILINOS_URL" "$TRILINOS_SRC_DIR" || {
-                echo "Failed to clone version $VERSION, falling back to 14.4.0..."
-                git clone --depth 1 --branch "trilinos-release-14-4-0" "$TRILINOS_URL" "$TRILINOS_SRC_DIR"
-                VERSION="14.4.0"
+                echo "Failed to clone version $VERSION, falling back to 15.0.0..."
+                git clone --depth 1 --branch "trilinos-release-15-0-0" "$TRILINOS_URL" "$TRILINOS_SRC_DIR" || {
+                    echo "Failed to clone 15.0.0, trying 14.4.0..."
+                    git clone --depth 1 --branch "trilinos-release-14-4-0" "$TRILINOS_URL" "$TRILINOS_SRC_DIR"
+                    VERSION="14.4.0"
+                }
+                VERSION="15.0.0"
             }
         }
     }
@@ -333,7 +348,7 @@ fi
 CMAKE_ARGS+=(
     "-DTrilinos_ENABLE_EXPLICIT_INSTANTIATION=ON"
     "-DTrilinos_ENABLE_THREAD_SAFE=ON"
-    "-DCMAKE_CXX_STANDARD=14"
+    "-DCMAKE_CXX_STANDARD=$CXXSTANDARD"
 )
 
 echo "Configuring Trilinos with CMake..."
