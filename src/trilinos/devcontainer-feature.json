@@ -1,6 +1,6 @@
 {
     "id": "trilinos",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "name": "Trilinos",
     "description": "Installs Trilinos - a collection of scientific computing libraries for engineering and science applications",
     "documentationURL": "https://github.com/trilinos/trilinos",
@@ -127,6 +127,11 @@
             ],
             "default": "23",
             "description": "C++ standard version (latest Trilinos requires 17+, default 23 for modern features)"
+        },
+        "enableFortran": {
+            "type": "boolean",
+            "default": true,
+            "description": "Enable Fortran language support (required for some Trilinos packages)"
         }
     },
     "containerEnv": {

@@ -6,7 +6,7 @@
     "features": [
         {
             "id": "trilinos",
-            "version": "1.0.3",
+            "version": "1.0.4",
             "name": "Trilinos",
             "description": "Installs Trilinos - a collection of scientific computing libraries for engineering and science applications",
             "documentationURL": "https://github.com/trilinos/trilinos",

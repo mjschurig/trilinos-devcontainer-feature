@@ -33,6 +33,7 @@ Add this feature to your `devcontainer.json`:
 | `enableSharedLibs` | boolean | `true` | Build shared libraries |
 | `enableTests` | boolean | `false` | Enable building tests |
 | `cxxStandard` | string | `23` | C++ standard version (latest Trilinos requires 17+) |
+| `enableFortran` | boolean | `true` | Enable Fortran support (required for some packages) |
 
 ## Requirements
 

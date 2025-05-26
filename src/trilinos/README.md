@@ -32,6 +32,7 @@ Installs [Trilinos](https://trilinos.github.io/) - a collection of scientific co
 | enableFloat | Enable float scalar type support | boolean | false |
 | enableComplex | Enable complex scalar type support | boolean | false |
 | cxxStandard | C++ standard version (latest Trilinos requires 17+) | string | 23 |
+| enableFortran | Enable Fortran language support (required for some Trilinos packages) | boolean | true |
 
 ## Supported Trilinos Versions
 
@@ -112,7 +113,20 @@ Installs [Trilinos](https://trilinos.github.io/) - a collection of scientific co
       "enableKokkos": false,
       "enableTpetra": false,
       "enableBelos": false,
-      "enableIfpack2": false
+      "enableIfpack2": false,
+      "enableFortran": false
+    }
+  }
+}
+```
+
+### C++ Only (no Fortran)
+```json
+{
+  "features": {
+    "ghcr.io/maxschurig/trilinos-devcontainer-feature/trilinos:1": {
+      "enableFortran": false,
+      "cxxStandard": "23"
     }
   }
 }

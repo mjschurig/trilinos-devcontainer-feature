@@ -29,6 +29,7 @@ PARALLELJOBS=${PARALLELJOBS:-auto}
 ENABLEFLOAT=${ENABLEFLOAT:-false}
 ENABLECOMPLEX=${ENABLECOMPLEX:-false}
 CXXSTANDARD=${CXXSTANDARD:-23}
+ENABLEFORTRAN=${ENABLEFORTRAN:-true}
 
 echo "Installing Trilinos with the following options:"
 echo "  Version: $VERSION"
@@ -49,6 +50,7 @@ echo "  Parallel Jobs: $PARALLELJOBS"
 echo "  Float Support: $ENABLEFLOAT"
 echo "  Complex Support: $ENABLECOMPLEX"
 echo "  C++ Standard: $CXXSTANDARD"
+echo "  Fortran Support: $ENABLEFORTRAN"
 
 # Check if we are running as root
 if [ "$(id -u)" -ne 0 ]; then
@@ -113,6 +115,12 @@ check_packages \
     software-properties-common \
     gpg \
     lsb-release
+
+# Install Fortran compiler if needed
+if [ "$ENABLEFORTRAN" = "true" ]; then
+    echo "Installing Fortran compiler..."
+    check_packages gfortran
+fi
 
 # Install a newer version of CMake (Trilinos requires 3.23.0+)
 echo "Installing CMake 3.25.0 or newer..."
@@ -350,6 +358,13 @@ CMAKE_ARGS+=(
     "-DTrilinos_ENABLE_THREAD_SAFE=ON"
     "-DCMAKE_CXX_STANDARD=$CXXSTANDARD"
 )
+
+# Configure Fortran support
+if [ "$ENABLEFORTRAN" = "true" ]; then
+    CMAKE_ARGS+=("-DTrilinos_ENABLE_Fortran=ON")
+else
+    CMAKE_ARGS+=("-DTrilinos_ENABLE_Fortran=OFF")
+fi
 
 echo "Configuring Trilinos with CMake..."
 echo "CMake arguments: ${CMAKE_ARGS[*]}"
